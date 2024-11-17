@@ -17,16 +17,22 @@ class TestLogic(TestCase):
         cls.user = User.objects.create(username='Monika Geller')
         cls.auth_client = Client()
         cls.auth_client.force_login(cls.user)
+
+        cls.alien = User.objects.create(username='Sheldon Lee Cooper')
+        cls.auth_alien = Client()
+        cls.auth_alien.force_login(cls.alien)
+
         cls.url = reverse('notes:add')
         cls.form_data = {
             'title': 'Заматка #1',
             'text': 'Текст заметки #1',
             'slug': 'note_1',
         }
+        cls.urls = (
+            ('notes:edit', (cls.form_data['slug'],)),
+            ('notes:delete', (cls.form_data['slug'],)),
+        )
 
-        cls.alien = User.objects.create(username='Sheldon Lee Cooper')
-        cls.auth_alien = Client()
-        cls.auth_alien.force_login(cls.alien)
 
     def test_user_can_create_note(self):
         """Залогиненный пользователь может
@@ -70,11 +76,7 @@ class TestLogic(TestCase):
         редактировать или удалять свою заметку.
         """
         self.auth_client.post(self.url, self.form_data)
-        urls = (
-            ('notes:edit', (self.form_data['slug'],)),
-            ('notes:delete', (self.form_data['slug'],)),
-        )
-        for name, args in urls:
+        for name, args in self.urls:
             with self.subTest(name=name):
                 url = reverse(name, args=args)
                 response = self.auth_client.get(url)
@@ -85,11 +87,7 @@ class TestLogic(TestCase):
         редактировать или удалять чужую заметку.
         """
         self.auth_alien.post(self.url, self.form_data)
-        urls = (
-            ('notes:edit', (self.form_data['slug'],)),
-            ('notes:delete', (self.form_data['slug'],)),
-        )
-        for name, args in urls:
+        for name, args in self.urls:
             with self.subTest(name=name):
                 url = reverse(name, args=args)
                 response = self.auth_client.get(url)
