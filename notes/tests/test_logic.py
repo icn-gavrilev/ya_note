@@ -33,7 +33,6 @@ class TestLogic(TestCase):
             ('notes:delete', (cls.form_data['slug'],)),
         )
 
-
     def test_user_can_create_note(self):
         """Залогиненный пользователь может
         создать заметку.
